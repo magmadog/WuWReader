@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">WuWReader</string>
+    <string name="placeholder_search">Search book</string>
+    <string name="book_preview_content_description">Cover of book</string>
+</resources>

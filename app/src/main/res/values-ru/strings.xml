@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WuWReader</string>
+    <string name="placeholder_search">Поиск книги</string>
+    <string name="book_preview_content_description">Обложка книги</string>
+</resources>

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">WuWReader</string>
-    <string name="placeholder_search">Поиск книги</string>
+    <string name="placeholder_search">Поиск...</string>
     <string name="book_preview_content_description">Обложка книги</string>
+    <string name="unknown_author">Автор неизвестен</string>
+    <string name="unknown_title">...</string>
+    <string name="read">Прочитано</string>
+    <string name="open_book">Открыть книгу</string>
 </resources>

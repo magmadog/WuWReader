@@ -2,4 +2,8 @@
     <string name="app_name">WuWReader</string>
     <string name="placeholder_search">Search book</string>
     <string name="book_preview_content_description">Cover of book</string>
+    <string name="unknown_author">The author is unknown</string>
+    <string name="unknown_title">...</string>
+    <string name="read">Read</string>
+    <string name="open_book">Open the book</string>
 </resources>

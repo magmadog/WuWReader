@@ -28,6 +28,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         mRepository.insert(book)
     }
 
+    fun delete(book: Book){
+        mRepository.delete(book)
+    }
+
     fun pushToTop(book: Book){
         mRepository.pushToTop(book)
     }

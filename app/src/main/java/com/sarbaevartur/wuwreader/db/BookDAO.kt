@@ -7,7 +7,7 @@ import java.util.*
 @Dao
 interface BookDAO {
 
-    @Query("SELECT * FROM book")
+    @Query("SELECT * FROM book ORDER BY last_opened_date DESC")
     fun getAll(): LiveData<List<Book>>
 
     @Query("SELECT * FROM book WHERE id IN (:userIDs)")

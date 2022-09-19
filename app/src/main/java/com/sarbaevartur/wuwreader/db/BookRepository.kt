@@ -1,11 +1,13 @@
 package com.sarbaevartur.wuwreader.db
 
 import android.app.Application
-import android.content.Context
-import android.os.AsyncTask
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 
 class BookRepository(application: Application) {
@@ -14,6 +16,9 @@ class BookRepository(application: Application) {
         application,
         AppDatabase::class.java, "database-name"
     ).build()
+
+    var executor: ExecutorService = Executors.newSingleThreadExecutor()
+    var handler: Handler = Handler(Looper.getMainLooper())
 
     private var mBookDao: BookDAO = db.bookDao()
     private var mAllBooks: LiveData<List<Book>> = mBookDao.getAll()
@@ -28,40 +33,18 @@ class BookRepository(application: Application) {
     }
 
     fun insert(book: Book) {
-        insertAsyncTask(mBookDao).execute(book)
+        executor.execute {mBookDao.insertAll(book)}
     }
 
     fun pushToTop(book: Book){
-        updateAsyncTask(mBookDao).execute(book)
+        executor.execute {mBookDao.pushToTop(Date(System.currentTimeMillis()), book.id)}
     }
 
     fun deleteAllData(){
         mBookDao.nukeTable()
     }
 
-    private class updateAsyncTask internal constructor(dao: BookDAO) :
-        AsyncTask<Book, Void?, Void?>() {
-        private val mAsyncTaskDao: BookDAO
-        override fun doInBackground(vararg params: Book): Void? {
-            mAsyncTaskDao.pushToTop(Date(System.currentTimeMillis()), params[0].id)
-            return null
-        }
-
-        init {
-            mAsyncTaskDao = dao
-        }
-    }
-
-    private class insertAsyncTask internal constructor(dao: BookDAO) :
-        AsyncTask<Book, Void?, Void?>() {
-        private val mAsyncTaskDao: BookDAO
-        override fun doInBackground(vararg params: Book): Void? {
-            mAsyncTaskDao.insertAll(params[0])
-            return null
-        }
-
-        init {
-            mAsyncTaskDao = dao
-        }
+    fun delete(book: Book){
+        executor.execute {mBookDao.delete(book)}
     }
 }

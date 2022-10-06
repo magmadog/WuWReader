@@ -47,4 +47,8 @@ class BookRepository(application: Application) {
     fun delete(book: Book){
         executor.execute {mBookDao.delete(book)}
     }
+
+    fun update(book: Book){
+        executor.execute {mBookDao.update(book)}
+    }
 }

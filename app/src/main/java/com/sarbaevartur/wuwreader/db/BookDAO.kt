@@ -31,5 +31,6 @@ interface BookDAO {
     @Delete
     fun delete(book: Book)
 
-
+    @Update
+    fun update(book: Book)
 }

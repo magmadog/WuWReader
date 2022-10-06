@@ -1,6 +1,5 @@
 package com.sarbaevartur.wuwreader.screens
 
-import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
@@ -12,24 +11,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import com.sarbaevartur.wuwreader.MainViewModel
-import com.sarbaevartur.wuwreader.db.Book
 import com.sarbaevartur.wuwreader.readers.pdf.PdfViewer
 
 @Composable
 fun BookView(viewModel: MainViewModel, modifier: Modifier){
-    val isLoading = remember { mutableStateOf(false) }
-    val currentLoadingPage = remember { mutableStateOf<Int?>(null) }
-    val pageCount = remember { mutableStateOf<Int?>(null) }
 
     val book by viewModel.getLastOpenedBook().observeAsState()
 
+    val isLoading = remember { mutableStateOf(false) }
+    val currentLoadingPage = remember { mutableStateOf(book?.lastPage) }
+    val pageCount = remember { mutableStateOf<Int?>(null) }
+
     Box {
         PdfViewer(
-            modifier = Modifier.fillMaxSize(),
-            pdfResUri = Uri.parse(book!!.path),
+            viewModel = viewModel,
+            book = book!!,
+            modifier = modifier.fillMaxSize(),
             loadingListener = { loading, currentPage, maxPage ->
                 isLoading.value = loading
                 if (currentPage != null) currentLoadingPage.value = currentPage

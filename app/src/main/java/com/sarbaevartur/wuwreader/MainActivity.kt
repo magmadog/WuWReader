@@ -38,6 +38,8 @@ import com.sarbaevartur.wuwreader.screens.BookView
 import com.sarbaevartur.wuwreader.screens.LibraryView
 import com.sarbaevartur.wuwreader.screens.Routes
 import com.sarbaevartur.wuwreader.ui.theme.WuWReaderTheme
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
 import java.util.*
 
 
@@ -135,16 +137,19 @@ fun addBookButton(
         context.contentResolver.takePersistableUriPermission(uri,
             Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
 
-        val book = Book(title = queryName(context.contentResolver, uri) ?: "21", path = uri.toString(), lastOpenDate = Date(System.currentTimeMillis()))
-        Log.d(TAG, book.toString())
+        val title = queryName(context.contentResolver, uri)
+        val book = Book(
+            title = title.substringBeforeLast('.'),
+            path = uri.toString(),
+            lastOpenDate = Date(System.currentTimeMillis()),
+            format = title.substringAfterLast('.')
+            )
         viewModel.insert(book)
     }
 
     val onClick = {
 
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-
-        // the type of file we want to pick; for now it's all
         intent.type = "*/*"
 
         // allows us to pick multiple files
@@ -153,12 +158,12 @@ fun addBookButton(
         launcher.launch(intent)
     }
 
-    FloatingActionButton(onClick = onClick) {
+    FloatingActionButton(onClick = onClick, modifier = modifier) {
         Icon(Icons.Filled.Add,"")
     }
 }
 
-private fun queryName(resolver: ContentResolver, uri: Uri): String? {
+private fun queryName(resolver: ContentResolver, uri: Uri): String {
     val returnCursor: Cursor = resolver.query(uri, null, null, null, null)!!
     val nameIndex: Int = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
     returnCursor.moveToFirst()

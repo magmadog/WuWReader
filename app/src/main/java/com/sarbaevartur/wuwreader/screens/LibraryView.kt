@@ -27,6 +27,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.shadow
@@ -36,6 +37,7 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -43,8 +45,12 @@ import androidx.navigation.NavController
 import com.sarbaevartur.wuwreader.*
 import com.sarbaevartur.wuwreader.R
 import com.sarbaevartur.wuwreader.db.Book
+import com.sarbaevartur.wuwreader.ui.theme.OrangeLight
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import java.time.Instant.now
+import java.time.LocalDate.now
+import java.time.LocalDateTime
 import java.util.*
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
@@ -97,13 +103,19 @@ fun LastBookPreview(
             .fillMaxWidth()) {
         Image(painter = painterResource(id = R.drawable.book_preview),
             contentDescription = stringResource(id = R.string.book_preview_content_description),
-            modifier = modifier.weight(1f))
+            modifier = modifier.weight(1f).align(CenterVertically))
         Column(modifier = modifier
             .padding(16.dp)
             .weight(3f)) {
-            Text(text = book?.title ?: stringResource(id = R.string.unknown_title))
-            Text(text = book?.author ?: stringResource(id = R.string.unknown_author))
-            Text(text = stringResource(id = R.string.read) + " " + book?.lastPage)
+            Text(
+                text = book?.title ?: stringResource(id = R.string.unknown_title),
+                style = MaterialTheme.typography.h5,
+                maxLines = 2)
+            Text(
+                text = book?.author ?: stringResource(id = R.string.unknown_author),
+                color = OrangeLight)
+            Text(
+                text = stringResource(id = R.string.read) + " " + book?.lastPage)
             Button(onClick = onClick) {
                 Text(text = stringResource(id = R.string.open_book))
             }
@@ -188,16 +200,28 @@ fun BookCard(book: Book, onClick: () -> Unit, modifier: Modifier = Modifier){
                     .weight(3f)
                     .padding(horizontal = 8.dp)
             ) {
-                Text(text = book.title, style = MaterialTheme.typography.h5)
+                Text(
+                    text = book.title,
+                    style = MaterialTheme.typography.h5,
+                    maxLines = 2)
                 Text(text = book.author)
             }
             Text(
                 text = book.lastPage.toString(), modifier = modifier
                     .weight(1f)
                     .padding(horizontal = 8.dp)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             )
         }
         LinearProgressIndicator(progress = 0.7f, modifier = modifier.fillMaxWidth())
     }
+}
+
+
+@Preview
+@Composable
+fun Preview(){
+    val book = Book(12, "Граф Монте-Кристо", "Александр Дюма", "", 12, "", Date(System.currentTimeMillis()))
+
+    LastBookPreview(onClick = { /*TODO*/ }, book = book)
 }

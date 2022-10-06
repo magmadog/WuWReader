@@ -7,9 +7,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.sarbaevartur.wuwreader.db.Book
 import com.sarbaevartur.wuwreader.db.BookRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class MainViewModel @Inject constructor(@ApplicationContext application: Application) : AndroidViewModel(application) {
 
     private var mRepository: BookRepository = BookRepository(application)
 
@@ -38,5 +42,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteAllData(){
         mRepository.deleteAllData()
+    }
+
+    fun update(book: Book){
+        mRepository.update(book)
     }
 }

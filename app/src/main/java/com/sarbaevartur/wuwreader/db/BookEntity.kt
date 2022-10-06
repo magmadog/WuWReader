@@ -14,5 +14,8 @@ data class Book(
     @ColumnInfo(name = "book_path")         val path: String = "",
     @ColumnInfo(name = "last_page")         var lastPage: Int = 0,
     @ColumnInfo(name = "cover")             val cover: String = "",
-    @ColumnInfo(name = "last_opened_date")  val lastOpenDate: Date
+    @ColumnInfo(name = "last_opened_date")  val lastOpenDate: Date,
+    @ColumnInfo(name = "data_format")       val format: String = "PDF",
+    @ColumnInfo(name = "pages")             val pages: Int = 100,
+    @ColumnInfo(name = "file_size")         val size: Int = 2048,
 )

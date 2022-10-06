@@ -22,9 +22,13 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.sarbaevartur.wuwreader.MainViewModel
+import com.sarbaevartur.wuwreader.db.Book
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.*
+
+const val TAG = "READER"
 
 enum class PdfListDirection {
     HORIZONTAL, VERTICAL
@@ -32,7 +36,8 @@ enum class PdfListDirection {
 
 @Composable
 fun PdfViewer(
-    pdfResUri: Uri,
+    viewModel: MainViewModel,
+    book: Book,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color(0xFF909090),
     pageColor: Color = Color.White,
@@ -46,7 +51,9 @@ fun PdfViewer(
 ) {
     val context = LocalContext.current
     PdfViewer(
-        pdfStream = context.contentResolver.openInputStream(pdfResUri)!!,
+        viewModel = viewModel,
+        book = book,
+        pdfStream = context.contentResolver.openInputStream(Uri.parse(book.path)!!)!!,
         modifier = modifier,
         pageColor = pageColor,
         backgroundColor = backgroundColor,
@@ -58,6 +65,8 @@ fun PdfViewer(
 
 @Composable
 fun PdfViewer(
+    viewModel: MainViewModel,
+    book: Book,
     pdfStream: InputStream,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color(0xFF909090),
@@ -79,6 +88,8 @@ fun PdfViewer(
         arrangement = arrangement
     ) { lazyState, imagem ->
         PaginaPDF(
+            viewModel = viewModel,
+            book = book,
             imagem = imagem,
             lazyState = lazyState,
             backgroundColor = pageColor
@@ -175,10 +186,14 @@ fun PdfViewer(
 
 @Composable
 private fun PaginaPDF(
+    viewModel: MainViewModel,
+    book: Book,
     imagem: ImageBitmap,
     lazyState: LazyListState,
     backgroundColor: Color = Color.White
 ) {
+    book.lastPage= lazyState.firstVisibleItemIndex
+    viewModel.update(book)
     Card(
         modifier = Modifier.background(backgroundColor),
         elevation = 5.dp

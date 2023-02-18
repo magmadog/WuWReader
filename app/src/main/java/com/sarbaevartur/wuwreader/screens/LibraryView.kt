@@ -1,31 +1,30 @@
 package com.sarbaevartur.wuwreader.screens
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.sarbaevartur.wuwreader.*
 import com.sarbaevartur.wuwreader.R
@@ -35,7 +34,6 @@ import java.util.*
 
 const val TAG = "Library"
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LibraryView(viewModel: MainViewModel, navController: NavController, modifier: Modifier){
 
@@ -53,21 +51,46 @@ fun LibraryView(viewModel: MainViewModel, navController: NavController, modifier
 fun SearchBar(
     modifier: Modifier = Modifier
 ) {
+    val state = remember { mutableStateOf("") }
     TextField(
-        value = "",
-        onValueChange = {},
+        value = state.value,
+        onValueChange = { value ->
+            state.value = value
+        },
+        modifier = Modifier
+            .fillMaxWidth(),
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = Color.White,
+        ),
+        textStyle = TextStyle(fontSize = 18.sp),
         leadingIcon = {
             Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null
-            ) },
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = MaterialTheme.colors.surface
-        ),
-        placeholder = {Text(stringResource(R.string.placeholder_search)) },
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp)
+                Icons.Default.Search,
+                contentDescription = "",
+                modifier = Modifier
+                    .padding(15.dp)
+                    .size(24.dp)
+            )
+        },
+        trailingIcon = {
+            if (state.value != "") {
+                IconButton(
+                    onClick = {
+                        state.value = ""
+                    }
+                ) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = "",
+                        modifier = Modifier
+                            .padding(15.dp)
+                            .size(24.dp)
+                    )
+                }
+            }
+        },
+        singleLine = true,
+        shape = RectangleShape,
     )
 }
 
@@ -105,11 +128,10 @@ fun LastBookPreview(
 }
 
 @OptIn(ExperimentalMaterialApi::class)
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Library(viewModel: MainViewModel, modifier: Modifier = Modifier){
 
-    val bookList by viewModel.mAllBooks.observeAsState()
+    val bookList by viewModel.getAllBooks().observeAsState()
 
     if (bookList?.isEmpty() == false){
 
@@ -154,10 +176,10 @@ fun Library(viewModel: MainViewModel, modifier: Modifier = Modifier){
                     },
                     dismissContent = {
                         BookCard(book = item, onClick = { viewModel.pushToTop(item) })
+                        Spacer(modifier = modifier.size(8.dp))
                     },
                     directions = setOf(DismissDirection.EndToStart)
                 )
-                Divider()
             }
         }
     }
@@ -165,45 +187,42 @@ fun Library(viewModel: MainViewModel, modifier: Modifier = Modifier){
 
 @Composable
 fun BookCard(book: Book, onClick: () -> Unit, modifier: Modifier = Modifier){
+    val pagePercent = book.lastPage.toFloat()/book.pages
 
-    Column {
-        Row(
-            modifier = modifier
-                .clickable(onClick = onClick)
-                .clip(shape = RoundedCornerShape(8.dp))
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.book_preview),
-                contentDescription = stringResource(id = R.string.book_preview_content_description),
-                modifier = modifier.weight(1f)
-            )
-            Column(
-                modifier = modifier
-                    .weight(3f)
-                    .padding(horizontal = 8.dp)
-            ) {
+    Box(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .padding(8.dp)
+            .border(border = BorderStroke(1.dp, Color.DarkGray), shape = RoundedCornerShape(16.dp))
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
+    ) {
+        Column {
+            Row{
+                Image(
+                    painter = painterResource(id = R.drawable.book_preview),
+                    contentDescription = stringResource(id = R.string.book_preview_content_description),
+                    modifier = modifier.weight(1f)
+                )
+                Column(
+                    modifier = modifier
+                        .weight(4f)
+                        .padding(horizontal = 8.dp)
+                ) {
+                    Text(
+                        text = book.title,
+                        style = MaterialTheme.typography.h5,
+                        maxLines = 2)
+                    Text(
+                        text = book.author)
+                    LinearProgressIndicator(progress = pagePercent, modifier = modifier.fillMaxWidth())
+                }
                 Text(
-                    text = book.title,
-                    style = MaterialTheme.typography.h5,
-                    maxLines = 2)
-                Text(text = book.author)
+                    text = "${(pagePercent*100).toInt()}%", modifier = modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
+                        .align(CenterVertically)
+                )
             }
-            Text(
-                text = book.lastPage.toString(), modifier = modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp)
-                    .align(CenterVertically)
-            )
         }
-        LinearProgressIndicator(progress = 0.7f, modifier = modifier.fillMaxWidth())
     }
-}
-
-
-@Preview
-@Composable
-fun Preview(){
-    val book = Book(12, "Граф Монте-Кристо", "Александр Дюма", "", 12, "", Date(System.currentTimeMillis()))
-
-    BookCard(book = book, onClick = { /*TODO*/ })
 }

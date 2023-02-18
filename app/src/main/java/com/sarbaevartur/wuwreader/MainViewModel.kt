@@ -10,8 +10,8 @@ class MainViewModel (application: Application) : AndroidViewModel(application) {
 
     private var mRepository: BookRepository = BookRepository(application)
 
-    var mAllBooks: LiveData<List<Book>> = mRepository.getAllBooks()
-    val mLastOpenedBook = mRepository.getLastOpenedBook()
+    private var mAllBooks: LiveData<List<Book>> = mRepository.getAllBooks()
+    private val mLastOpenedBook: LiveData<Book> = mRepository.getLastOpenedBook()
 
     fun getAllBooks(): LiveData<List<Book>> {
         return mAllBooks

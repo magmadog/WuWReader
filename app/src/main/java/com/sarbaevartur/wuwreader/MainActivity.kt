@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -38,8 +37,6 @@ import com.sarbaevartur.wuwreader.screens.BookView
 import com.sarbaevartur.wuwreader.screens.LibraryView
 import com.sarbaevartur.wuwreader.screens.Routes
 import com.sarbaevartur.wuwreader.ui.theme.WuWReaderTheme
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
 import java.util.*
 
 
@@ -93,7 +90,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(viewModel: MainViewModel, navController: NavController) {
     Scaffold(
-        floatingActionButton = {addBookButton(viewModel)},
+        floatingActionButton = {AddBookButton(viewModel)},
         floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true,
         bottomBar = {
@@ -120,7 +117,7 @@ fun MyApp(viewModel: MainViewModel, navController: NavController) {
 
 
 @Composable
-fun addBookButton(
+fun AddBookButton(
     viewModel: MainViewModel,
     modifier: Modifier = Modifier){
 

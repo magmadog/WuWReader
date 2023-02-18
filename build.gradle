@@ -4,6 +4,7 @@ buildscript {
         room_version = "2.4.3"
         dagger_version = "2.43.1"
         readium_version = '2.2.0'
+        koin_version = '3.3.0'
     }
 
     dependencies {
@@ -23,7 +24,6 @@ task clean(type: Delete) {
 allprojects {
     repositories {
         google()
-        jcenter()
         mavenCentral()
         // ADD IT HERE
         maven { url "https://jitpack.io" }

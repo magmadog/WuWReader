@@ -2,7 +2,6 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
-    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -66,24 +65,7 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
     implementation "androidx.navigation:navigation-compose:2.5.2"
-//    implementation "androidx.lifecycle:lifecycle-extensions:2.5.1"
     kapt "androidx.lifecycle:lifecycle-compiler:2.5.1"
-
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-
-    implementation "com.google.dagger:hilt-android:$dagger_version"
-//    implementation "androidx.hilt:hilt-navigation-compose:$hilt_version"
-    kapt "com.google.dagger:hilt-android-compiler:$dagger_version"
-
-    implementation "androidx.paging:paging-runtime:3.1.1"
-
-    implementation "com.github.readium.kotlin-toolkit:readium-shared:$readium_version"
-    implementation "com.github.readium.kotlin-toolkit:readium-streamer:$readium_version"
-    implementation "com.github.readium.kotlin-toolkit:readium-navigator:$readium_version"
-    implementation "com.github.readium.kotlin-toolkit:readium-opds:$readium_version"
-    implementation "com.github.readium.kotlin-toolkit:readium-lcp:$readium_version"
-    implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

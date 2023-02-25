@@ -11,4 +11,6 @@
     <string name="settings_font">Шрифт</string>
     <string name="settings_alignment">Выравнивание</string>
     <string name="settings_font_description">Установка шрифтов текста</string>
+    <string name="settings_font_size_description">Установка размера текста</string>
+    <string name="settings_alignment_description">Выравнивание теста книги</string>
 </resources>

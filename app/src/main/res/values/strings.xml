@@ -11,4 +11,6 @@
     <string name="settings_font">Font</string>
     <string name="settings_alignment">Alignment</string>
     <string name="settings_font_description">Set font for all texts</string>
+    <string name="settings_font_size_description">Set font size</string>
+    <string name="settings_alignment_description">Set a book alignment</string>
 </resources>

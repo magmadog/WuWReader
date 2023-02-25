@@ -36,11 +36,10 @@ import com.sarbaevartur.wuwreader.db.Book
 import com.sarbaevartur.wuwreader.screens.BookView
 import com.sarbaevartur.wuwreader.screens.LibraryView
 import com.sarbaevartur.wuwreader.screens.Routes
+import com.sarbaevartur.wuwreader.screens.SettingsView
 import com.sarbaevartur.wuwreader.ui.theme.WuWReaderTheme
 import java.util.*
 
-
-const val TAG = "MainActivity"
 const val REQUEST_CODE_PERMISSION_READ_EXTERNAL_STORAGE = 12345
 const val REQUEST_CODE_PERMISSION_WRITE_EXTERNAL_STORAGE = 12346
 
@@ -95,7 +94,7 @@ fun MyApp(viewModel: MainViewModel, navController: NavController) {
         isFloatingActionButtonDocked = true,
         bottomBar = {
             BottomAppBar{
-                IconButton(onClick = {  }) { Icon(Icons.Filled.Settings, contentDescription = "Избранное") }
+                IconButton(onClick = { navController.navigate(Routes.SettingsView.route) }) { Icon(Icons.Filled.Settings, contentDescription = "Настройки") }
                 Spacer(Modifier.weight(1f, true))
                 IconButton(onClick = {  }) { Icon(Icons.Filled.Info, contentDescription = "Информация о приложении") }
             }
@@ -110,6 +109,10 @@ fun MyApp(viewModel: MainViewModel, navController: NavController) {
 
             composable(Routes.BookView.route){
                 BookView(viewModel = viewModel, modifier = Modifier.padding(padding))
+            }
+
+            composable(Routes.SettingsView.route){
+                SettingsView()
             }
         }
     }

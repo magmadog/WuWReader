@@ -108,7 +108,7 @@ fun MyApp(viewModel: MainViewModel, navController: NavController) {
             }
 
             composable(Routes.BookView.route){
-                BookView(viewModel = viewModel, modifier = Modifier.padding(padding))
+                BookView(modifier = Modifier.padding(padding), book = viewModel.getLastOpenedBook().value!!)
             }
 
             composable(Routes.SettingsView.route){

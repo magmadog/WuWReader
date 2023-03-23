@@ -4,29 +4,24 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.sarbaevartur.wuwreader.MainViewModel
+import com.sarbaevartur.wuwreader.db.Book
 import com.sarbaevartur.wuwreader.readers.pdf.PdfViewer
 
 @Composable
-fun BookView(viewModel: MainViewModel, modifier: Modifier){
-
-    val book by viewModel.getLastOpenedBook().observeAsState()
+fun BookView(book: Book, modifier: Modifier){
 
     val isLoading = remember { mutableStateOf(false) }
-    val currentLoadingPage = remember { mutableStateOf(book?.lastPage) }
+    val currentLoadingPage = remember { mutableStateOf(book.lastPage) }
     val pageCount = remember { mutableStateOf<Int?>(null) }
 
     Box {
         PdfViewer(
-            viewModel = viewModel,
-            book = book!!,
+            book = book,
             modifier = modifier.fillMaxSize(),
             loadingListener = { loading, currentPage, maxPage ->
                 isLoading.value = loading
@@ -43,15 +38,15 @@ fun BookView(viewModel: MainViewModel, modifier: Modifier){
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp),
-                    progress = if (currentLoadingPage.value == null || pageCount.value == null) 0f
-                    else currentLoadingPage.value!!.toFloat() / pageCount.value!!.toFloat()
+                    progress = if (pageCount.value == null) 0f
+                    else currentLoadingPage.value.toFloat() / pageCount.value!!.toFloat()
                 )
                 Text(
                     modifier = Modifier
                         .align(Alignment.End)
                         .padding(top = 5.dp)
                         .padding(horizontal = 30.dp),
-                    text = "${currentLoadingPage.value ?: "-"} pages loaded/${pageCount.value ?: "-"} total pages"
+                    text = "${currentLoadingPage.value} pages loaded/${pageCount.value ?: "-"} total pages"
                 )
                 Spacer(modifier = Modifier.padding(48.dp))
             }

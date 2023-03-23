@@ -16,7 +16,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
@@ -42,7 +41,7 @@ fun LibraryView(viewModel: MainViewModel, navController: NavController, modifier
     Column(modifier = modifier) {
         SearchBar()
         LastBookPreview(onClick = {navController.navigate(Routes.BookView.route)}, lastBook)
-        Library(viewModel)
+        Library(viewModel, modifier, navController)
     }
 }
 
@@ -129,7 +128,18 @@ fun LastBookPreview(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Library(viewModel: MainViewModel, modifier: Modifier = Modifier){
+fun Library(viewModel: MainViewModel, modifier: Modifier = Modifier, navController: NavController){
+
+    var deleteDialog by remember { mutableStateOf(false) }
+    var book by remember { mutableStateOf(viewModel.getLastOpenedBook().value) }
+    if(deleteDialog){
+        AlertDialogs().SureDeleteBookDialog(
+            onDismiss = { deleteDialog = !deleteDialog },
+            onDelete = {
+                viewModel.delete(book!!)
+                deleteDialog = !deleteDialog
+            })
+    }
 
     val bookList by viewModel.getAllBooks().observeAsState()
 
@@ -145,7 +155,8 @@ fun Library(viewModel: MainViewModel, modifier: Modifier = Modifier){
                 val state = rememberDismissState(
                     confirmStateChange = {
                         if (it == DismissValue.DismissedToStart) {
-                            viewModel.delete(item)
+                            book = item
+                            deleteDialog = !deleteDialog
                         }
                         true
                     }
@@ -175,7 +186,7 @@ fun Library(viewModel: MainViewModel, modifier: Modifier = Modifier){
                         }
                     },
                     dismissContent = {
-                        BookCard(book = item, onClick = { viewModel.pushToTop(item) })
+                        BookCard(book = item, navController = navController, viewModel = viewModel)
                         Spacer(modifier = modifier.size(8.dp))
                     },
                     directions = setOf(DismissDirection.EndToStart)
@@ -186,15 +197,26 @@ fun Library(viewModel: MainViewModel, modifier: Modifier = Modifier){
 }
 
 @Composable
-fun BookCard(book: Book, onClick: () -> Unit, modifier: Modifier = Modifier){
+fun BookCard(book: Book, modifier: Modifier = Modifier, navController: NavController, viewModel: MainViewModel){
+
+    var openDialog by remember { mutableStateOf(false)  }
+
+    if (openDialog){
+        AlertDialogs().OpenBookDialog(
+            onDismiss = {openDialog = !openDialog},
+            onOpen = {
+                viewModel.pushToTop(book)
+                navController.navigate(Routes.BookView.route)
+            })
+    }
+
     val pagePercent = book.lastPage.toFloat()/book.pages
 
     Box(
         modifier = modifier
-            .clickable(onClick = onClick)
+            .clickable(onClick = { openDialog = !openDialog })
             .padding(8.dp)
             .border(border = BorderStroke(1.dp, Color.DarkGray), shape = RoundedCornerShape(16.dp))
-            .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
     ) {
         Column {
             Row{

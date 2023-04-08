@@ -3,21 +3,21 @@ package com.sarbaevartur.wuwreader
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import com.sarbaevartur.wuwreader.db.Book
-import com.sarbaevartur.wuwreader.db.BookRepository
+import com.sarbaevartur.wuwreader.data.db.BookRepositoryImpl
+import com.sarbaevartur.wuwreader.domain.model.Book
+import com.sarbaevartur.wuwreader.domain.usecase.GetLocalBooksUseCase
 
 class MainViewModel (application: Application) : AndroidViewModel(application) {
 
-    private var mRepository: BookRepository = BookRepository(application)
+    private var mRepository = BookRepositoryImpl(application)
 
-    private var mAllBooks: LiveData<List<Book>> = mRepository.getAllBooks()
     private val mLastOpenedBook: LiveData<Book> = mRepository.getLastOpenedBook()
 
     fun getAllBooks(): LiveData<List<Book>> {
-        return mAllBooks
+        return GetLocalBooksUseCase(mRepository).execute()
     }
 
-    fun getLastOpenedBook(): LiveData<Book>{
+    fun getLastOpenedBook(): LiveData<Book> {
         return mLastOpenedBook
     }
 

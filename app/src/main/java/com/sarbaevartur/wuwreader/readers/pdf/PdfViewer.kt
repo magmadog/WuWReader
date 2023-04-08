@@ -20,12 +20,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.sarbaevartur.wuwreader.db.Book
+import com.sarbaevartur.wuwreader.domain.model.Book
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.*
-
-const val TAG = "READER"
 
 enum class PdfListDirection {
     HORIZONTAL, VERTICAL
@@ -184,7 +182,7 @@ private fun PaginaPDF(
     lazyState: LazyListState,
     backgroundColor: Color = Color.White
 ) {
-    book.lastPage= lazyState.firstVisibleItemIndex
+    book.lastPage= remember { derivedStateOf { lazyState.firstVisibleItemIndex } }.value
     Card(
         modifier = Modifier.background(backgroundColor),
         elevation = 5.dp

@@ -21,6 +21,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -32,7 +34,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.sarbaevartur.wuwreader.db.Book
+import com.sarbaevartur.wuwreader.domain.model.Book
 import com.sarbaevartur.wuwreader.screens.BookView
 import com.sarbaevartur.wuwreader.screens.LibraryView
 import com.sarbaevartur.wuwreader.screens.Routes
@@ -47,7 +49,6 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -85,7 +86,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MyApp(viewModel: MainViewModel, navController: NavController) {
     Scaffold(
@@ -108,7 +108,8 @@ fun MyApp(viewModel: MainViewModel, navController: NavController) {
             }
 
             composable(Routes.BookView.route){
-                BookView(modifier = Modifier.padding(padding), book = viewModel.getLastOpenedBook().value!!)
+                val lastBook by viewModel.getLastOpenedBook().observeAsState()
+                BookView(modifier = Modifier.padding(padding), book = lastBook!!)
             }
 
             composable(Routes.SettingsView.route){

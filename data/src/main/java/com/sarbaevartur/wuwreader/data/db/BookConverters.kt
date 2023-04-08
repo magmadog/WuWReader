@@ -1,4 +1,4 @@
-package com.sarbaevartur.wuwreader.db
+package com.sarbaevartur.wuwreader.data.db
 
 import androidx.room.TypeConverter
 import java.util.*

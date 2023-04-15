@@ -13,4 +13,7 @@
     <string name="settings_font_description">Set font for all texts</string>
     <string name="settings_font_size_description">Set font size</string>
     <string name="settings_alignment_description">Set a book alignment</string>
+    <string name="cancel">Cancel</string>
+    <string name="sure_delete_book">Are you sure about delete this book?</string>
+    <string name="delete_book">Delete</string>
 </resources>

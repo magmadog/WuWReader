@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -59,7 +58,6 @@ private fun SettingCard(settingName: String, listItems: List<String>, settingIma
             .clickable(onClick = onClick)
             .padding(8.dp)
             .border(border = BorderStroke(1.dp, Color.DarkGray), shape = RoundedCornerShape(16.dp))
-            .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
     ) {
         Column{
             Row{

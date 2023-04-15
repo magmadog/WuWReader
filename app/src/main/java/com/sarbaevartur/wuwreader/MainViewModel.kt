@@ -2,23 +2,23 @@ package com.sarbaevartur.wuwreader
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import com.sarbaevartur.wuwreader.db.Book
-import com.sarbaevartur.wuwreader.db.BookRepository
+import com.sarbaevartur.wuwreader.data.db.BookRepositoryImpl
+import com.sarbaevartur.wuwreader.domain.model.Book
+import com.sarbaevartur.wuwreader.domain.usecase.GetLocalBooksUseCase
+import kotlinx.coroutines.flow.Flow
 
 class MainViewModel (application: Application) : AndroidViewModel(application) {
 
-    private var mRepository: BookRepository = BookRepository(application)
+    private var mRepository = BookRepositoryImpl(application)
 
-    private var mAllBooks: LiveData<List<Book>> = mRepository.getAllBooks()
-    private val mLastOpenedBook: LiveData<Book> = mRepository.getLastOpenedBook()
+    private val mLastOpenedBook: Flow<Book> = mRepository.getLastOpenedBook()
 
-    fun getAllBooks(): LiveData<List<Book>> {
-        return mAllBooks
+    fun getAllBooks(): Flow<List<Book>> {
+        return GetLocalBooksUseCase(repository = mRepository).execute()
     }
 
-    fun getLastOpenedBook(): LiveData<Book>{
-        return mLastOpenedBook
+    fun getLastOpenedBook(): Flow<Book> {
+        return mRepository.getLastOpenedBook()
     }
 
     fun insert(book: Book) {

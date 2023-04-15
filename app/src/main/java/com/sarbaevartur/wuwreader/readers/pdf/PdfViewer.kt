@@ -5,11 +5,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
-import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.annotation.RawRes
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.*
@@ -22,13 +20,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.sarbaevartur.wuwreader.MainViewModel
-import com.sarbaevartur.wuwreader.db.Book
+import com.sarbaevartur.wuwreader.domain.model.Book
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.*
-
-const val TAG = "READER"
 
 enum class PdfListDirection {
     HORIZONTAL, VERTICAL
@@ -36,7 +31,6 @@ enum class PdfListDirection {
 
 @Composable
 fun PdfViewer(
-    viewModel: MainViewModel,
     book: Book,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color(0xFF909090),
@@ -51,7 +45,6 @@ fun PdfViewer(
 ) {
     val context = LocalContext.current
     PdfViewer(
-        viewModel = viewModel,
         book = book,
         pdfStream = context.contentResolver.openInputStream(Uri.parse(book.path)!!)!!,
         modifier = modifier,
@@ -65,7 +58,6 @@ fun PdfViewer(
 
 @Composable
 fun PdfViewer(
-    viewModel: MainViewModel,
     book: Book,
     pdfStream: InputStream,
     modifier: Modifier = Modifier,
@@ -88,7 +80,6 @@ fun PdfViewer(
         arrangement = arrangement
     ) { lazyState, imagem ->
         PaginaPDF(
-            viewModel = viewModel,
             book = book,
             imagem = imagem,
             lazyState = lazyState,
@@ -186,14 +177,12 @@ fun PdfViewer(
 
 @Composable
 private fun PaginaPDF(
-    viewModel: MainViewModel,
     book: Book,
     imagem: ImageBitmap,
     lazyState: LazyListState,
     backgroundColor: Color = Color.White
 ) {
-    book.lastPage= lazyState.firstVisibleItemIndex
-    viewModel.update(book)
+    book.lastPage= remember { derivedStateOf { lazyState.firstVisibleItemIndex } }.value
     Card(
         modifier = Modifier.background(backgroundColor),
         elevation = 5.dp

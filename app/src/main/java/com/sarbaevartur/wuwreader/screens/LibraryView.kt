@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -35,13 +34,13 @@ import java.util.*
 @Composable
 fun LibraryView(viewModel: MainViewModel, navController: NavController, modifier: Modifier) {
 
-    val lastBook by viewModel.getLastOpenedBook().observeAsState()
-    val bookList by viewModel.getAllBooks().observeAsState()
+    val lastBook by viewModel.getLastOpenedBook().collectAsState(initial = null)
+    val bookList by viewModel.getAllBooks().collectAsState(initial = emptyList())
 
     Log.d("LibraryView", "Books: $bookList")
     Log.d("LibraryView", "Last book: $lastBook")
 
-    if (bookList != null) {
+    if (bookList.isNotEmpty()) {
         Column(modifier = modifier) {
             SearchBar()
             if (lastBook != null)
@@ -49,7 +48,7 @@ fun LibraryView(viewModel: MainViewModel, navController: NavController, modifier
                     onClick = { navController.navigate(Routes.BookView.route) },
                     lastBook!!
                 )
-            Library(viewModel, modifier, navController, bookList!!)
+            Library(viewModel, modifier, navController, bookList)
         }
     }
 }
@@ -225,7 +224,7 @@ fun BookCard(
             onDismiss = { openDialog = !openDialog },
             onOpen = {
                 viewModel.pushToTop(book)
-//                navController.navigate(Routes.BookView.route)
+                navController.navigate(Routes.BookView.route)
             })
     }
 

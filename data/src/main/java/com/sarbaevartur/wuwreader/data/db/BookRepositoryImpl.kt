@@ -2,13 +2,12 @@ package com.sarbaevartur.wuwreader.data.db
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import androidx.room.Room
 import com.sarbaevartur.wuwreader.data.model.BookEntity
 import com.sarbaevartur.wuwreader.domain.model.Book
 import com.sarbaevartur.wuwreader.domain.repository.BookRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -25,18 +24,14 @@ class BookRepositoryImpl(application: Application): BookRepository {
     var executor: ExecutorService = Executors.newSingleThreadExecutor()
 
     private var mBookDao: BookDAO = db.bookDao()
-    private var mAllBooks: LiveData<List<BookEntity>> = mBookDao.getAll()
-    private var mLastOpenedBookEntity: LiveData<BookEntity> = mBookDao.getLastBook()
+    private var mAllBooks: Flow<List<BookEntity>> = mBookDao.getAll()
+    private var mLastOpenedBookEntity: Flow<BookEntity> = mBookDao.getLastBook()
 
-    override fun getAllBooks(): LiveData<List<Book>> {
-        if (mAllBooks.value == null)
-            return mAllBooks.map {it.map { Book() } }
+    override fun getAllBooks(): Flow<List<Book>> {
         return mAllBooks.map { it.map { book -> bookEntityToBookTransformer(book) } }
     }
 
-    override fun getLastOpenedBook(): LiveData<Book> {
-        if (mLastOpenedBookEntity.value == null)
-            return MutableLiveData(null)
+    override fun getLastOpenedBook(): Flow<Book> {
         return mLastOpenedBookEntity.map { book -> bookEntityToBookTransformer(book) }
     }
 

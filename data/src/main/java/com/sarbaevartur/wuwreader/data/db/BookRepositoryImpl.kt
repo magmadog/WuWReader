@@ -1,11 +1,9 @@
 package com.sarbaevartur.wuwreader.data.db
 
 import android.app.Application
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.room.Room
 import com.sarbaevartur.wuwreader.data.model.BookEntity
@@ -31,11 +29,15 @@ class BookRepositoryImpl(application: Application): BookRepository {
     private var mLastOpenedBookEntity: LiveData<BookEntity> = mBookDao.getLastBook()
 
     override fun getAllBooks(): LiveData<List<Book>> {
-        return mAllBooks.map { it.map { book -> bookEntityToBookTransformer(book) } }.distinctUntilChanged()
+        if (mAllBooks.value == null)
+            return mAllBooks.map {it.map { Book() } }
+        return mAllBooks.map { it.map { book -> bookEntityToBookTransformer(book) } }
     }
 
     override fun getLastOpenedBook(): LiveData<Book> {
-        return mLastOpenedBookEntity.map {  book -> bookEntityToBookTransformer(book) }.distinctUntilChanged()
+        if (mLastOpenedBookEntity.value == null)
+            return MutableLiveData(null)
+        return mLastOpenedBookEntity.map { book -> bookEntityToBookTransformer(book) }
     }
 
     override fun insert(book: Book) {
@@ -78,16 +80,16 @@ class BookRepositoryImpl(application: Application): BookRepository {
 
     private fun bookEntityToBookTransformer(bookEntity: BookEntity): Book {
         return Book(
-            id = bookEntity.id,
-            title = bookEntity.title,
-            author = bookEntity.author,
-            path = bookEntity.path,
-            lastPage = bookEntity.lastPage,
-            cover = bookEntity.cover,
-            lastOpenDate = bookEntity.lastOpenDate,
-            format = bookEntity.format,
-            pages = bookEntity.pages,
-            size = bookEntity.size
-        )
+                id = bookEntity.id,
+                title = bookEntity.title,
+                author = bookEntity.author,
+                path = bookEntity.path,
+                lastPage = bookEntity.lastPage,
+                cover = bookEntity.cover,
+                lastOpenDate = bookEntity.lastOpenDate,
+                format = bookEntity.format,
+                pages = bookEntity.pages,
+                size = bookEntity.size
+            )
     }
 }

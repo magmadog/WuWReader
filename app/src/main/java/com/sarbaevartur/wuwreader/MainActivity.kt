@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import androidx.activity.ComponentActivity
@@ -15,14 +14,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -108,8 +107,7 @@ fun MyApp(viewModel: MainViewModel, navController: NavController) {
             }
 
             composable(Routes.BookView.route){
-                val lastBook by viewModel.getLastOpenedBook().observeAsState()
-                BookView(modifier = Modifier.padding(padding), book = lastBook!!)
+                BookView(viewModel = viewModel, modifier = Modifier.padding(padding))
             }
 
             composable(Routes.SettingsView.route){
@@ -152,9 +150,6 @@ fun AddBookButton(
 
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.type = "*/*"
-
-        // allows us to pick multiple files
-//        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
 
         launcher.launch(intent)
     }

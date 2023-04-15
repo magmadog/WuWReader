@@ -1,5 +1,6 @@
 package com.sarbaevartur.wuwreader.screens
 
+import android.util.Log
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -27,21 +28,29 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.sarbaevartur.wuwreader.*
 import com.sarbaevartur.wuwreader.R
-import com.sarbaevartur.wuwreader.db.Book
+import com.sarbaevartur.wuwreader.domain.model.Book
 import com.sarbaevartur.wuwreader.ui.theme.OrangeLight
 import java.util.*
 
-const val TAG = "Library"
-
 @Composable
-fun LibraryView(viewModel: MainViewModel, navController: NavController, modifier: Modifier){
+fun LibraryView(viewModel: MainViewModel, navController: NavController, modifier: Modifier) {
 
     val lastBook by viewModel.getLastOpenedBook().observeAsState()
+    val bookList by viewModel.getAllBooks().observeAsState()
 
-    Column(modifier = modifier) {
-        SearchBar()
-        LastBookPreview(onClick = {navController.navigate(Routes.BookView.route)}, lastBook)
-        Library(viewModel, modifier, navController)
+    Log.d("LibraryView", "Books: $bookList")
+    Log.d("LibraryView", "Last book: $lastBook")
+
+    if (bookList != null) {
+        Column(modifier = modifier) {
+            SearchBar()
+            if (lastBook != null)
+                LastBookPreview(
+                    onClick = { navController.navigate(Routes.BookView.route) },
+                    lastBook!!
+                )
+            Library(viewModel, modifier, navController, bookList!!)
+        }
     }
 }
 
@@ -56,7 +65,7 @@ fun SearchBar(
         onValueChange = { value ->
             state.value = value
         },
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(),
         colors = TextFieldDefaults.textFieldColors(
             backgroundColor = Color.White,
@@ -96,29 +105,34 @@ fun SearchBar(
 @Composable
 fun LastBookPreview(
     onClick: () -> Unit,
-    book: Book?,
+    book: Book,
     modifier: Modifier = Modifier
-){
-    Row(
-        modifier = modifier
-            .fillMaxWidth()) {
-        Image(painter = painterResource(id = R.drawable.book_preview),
+) {
+    Row(modifier = modifier.fillMaxWidth()) {
+        Image(
+            painter = painterResource(id = R.drawable.book_preview),
             contentDescription = stringResource(id = R.string.book_preview_content_description),
             modifier = modifier
                 .weight(1f)
-                .align(CenterVertically))
-        Column(modifier = modifier
-            .padding(16.dp)
-            .weight(3f)) {
+                .align(CenterVertically)
+        )
+        Column(
+            modifier = modifier
+                .padding(16.dp)
+                .weight(3f)
+        ) {
             Text(
-                text = book?.title ?: stringResource(id = R.string.unknown_title),
+                text = book.title,
                 style = MaterialTheme.typography.h5,
-                maxLines = 2)
+                maxLines = 2
+            )
             Text(
-                text = book?.author ?: stringResource(id = R.string.unknown_author),
-                color = OrangeLight)
+                text = book.author,
+                color = OrangeLight
+            )
             Text(
-                text = stringResource(id = R.string.read) + " " + book?.lastPage)
+                text = stringResource(id = R.string.read) + " " + book.lastPage
+            )
             Button(onClick = onClick) {
                 Text(text = stringResource(id = R.string.open_book))
             }
@@ -128,30 +142,30 @@ fun LastBookPreview(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Library(viewModel: MainViewModel, modifier: Modifier = Modifier, navController: NavController){
+fun Library(
+    viewModel: MainViewModel,
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    bookList: List<Book>
+) {
 
     var deleteDialog by remember { mutableStateOf(false) }
-    var book by remember { mutableStateOf(viewModel.getLastOpenedBook().value) }
-    if(deleteDialog){
+    var book by remember { mutableStateOf(Book()) }
+
+    if (deleteDialog) {
         AlertDialogs().SureDeleteBookDialog(
             onDismiss = { deleteDialog = !deleteDialog },
             onDelete = {
-                viewModel.delete(book!!)
+                viewModel.delete(book)
                 deleteDialog = !deleteDialog
             })
     }
 
-    val bookList by viewModel.getAllBooks().observeAsState()
-
-    if (bookList?.isEmpty() == false){
-
-        LazyColumn(modifier = modifier){
+    if (bookList.isNotEmpty()) {
+        LazyColumn(modifier = modifier) {
             itemsIndexed(
-                items = bookList!!,
-                key = { _, item ->
-                    item.hashCode()
-                }
-            ) { index, item ->
+                items = bookList
+            ) { _, item ->
                 val state = rememberDismissState(
                     confirmStateChange = {
                         if (it == DismissValue.DismissedToStart) {
@@ -168,7 +182,7 @@ fun Library(viewModel: MainViewModel, modifier: Modifier = Modifier, navControll
                         val color = when (state.dismissDirection) {
                             DismissDirection.StartToEnd -> Color.Transparent
                             DismissDirection.EndToStart -> Color.Red
-                            null -> Color.Transparent
+                            else -> Color.Transparent
                         }
 
                         Box(
@@ -197,29 +211,36 @@ fun Library(viewModel: MainViewModel, modifier: Modifier = Modifier, navControll
 }
 
 @Composable
-fun BookCard(book: Book, modifier: Modifier = Modifier, navController: NavController, viewModel: MainViewModel){
+fun BookCard(
+    book: Book,
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    viewModel: MainViewModel
+) {
 
-    var openDialog by remember { mutableStateOf(false)  }
+    var openDialog by remember { mutableStateOf(false) }
 
-    if (openDialog){
+    if (openDialog) {
         AlertDialogs().OpenBookDialog(
-            onDismiss = {openDialog = !openDialog},
+            onDismiss = { openDialog = !openDialog },
             onOpen = {
                 viewModel.pushToTop(book)
-                navController.navigate(Routes.BookView.route)
+//                navController.navigate(Routes.BookView.route)
             })
     }
 
-    val pagePercent = book.lastPage.toFloat()/book.pages
+    val pagePercent = book.lastPage.toFloat() / book.pages
 
     Box(
         modifier = modifier
-            .clickable(onClick = { openDialog = !openDialog })
+            .clickable(onClick = {
+                openDialog = !openDialog
+            })
             .padding(8.dp)
             .border(border = BorderStroke(1.dp, Color.DarkGray), shape = RoundedCornerShape(16.dp))
     ) {
         Column {
-            Row{
+            Row {
                 Image(
                     painter = painterResource(id = R.drawable.book_preview),
                     contentDescription = stringResource(id = R.string.book_preview_content_description),
@@ -233,13 +254,18 @@ fun BookCard(book: Book, modifier: Modifier = Modifier, navController: NavContro
                     Text(
                         text = book.title,
                         style = MaterialTheme.typography.h5,
-                        maxLines = 2)
+                        maxLines = 2
+                    )
                     Text(
-                        text = book.author)
-                    LinearProgressIndicator(progress = pagePercent, modifier = modifier.fillMaxWidth())
+                        text = book.author
+                    )
+                    LinearProgressIndicator(
+                        progress = pagePercent,
+                        modifier = modifier.fillMaxWidth()
+                    )
                 }
                 Text(
-                    text = "${(pagePercent*100).toInt()}%", modifier = modifier
+                    text = "${(pagePercent * 100).toInt()}%", modifier = modifier
                         .weight(1f)
                         .padding(horizontal = 8.dp)
                         .align(CenterVertically)

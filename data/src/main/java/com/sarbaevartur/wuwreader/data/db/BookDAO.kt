@@ -20,7 +20,7 @@ interface BookDAO {
     @Query("SELECT * FROM bookEntity ORDER BY last_opened_date DESC LIMIT 1")
     fun getLastBook(): LiveData<BookEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(bookEntity: BookEntity): Long
 
     @Query("DELETE FROM bookEntity")

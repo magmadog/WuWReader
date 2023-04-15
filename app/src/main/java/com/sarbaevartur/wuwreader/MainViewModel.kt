@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.sarbaevartur.wuwreader.data.db.BookRepositoryImpl
 import com.sarbaevartur.wuwreader.domain.model.Book
-import com.sarbaevartur.wuwreader.domain.usecase.GetLocalBooksUseCase
 
 class MainViewModel (application: Application) : AndroidViewModel(application) {
 
@@ -14,11 +13,11 @@ class MainViewModel (application: Application) : AndroidViewModel(application) {
     private val mLastOpenedBook: LiveData<Book> = mRepository.getLastOpenedBook()
 
     fun getAllBooks(): LiveData<List<Book>> {
-        return GetLocalBooksUseCase(mRepository).execute()
+        return mRepository.getAllBooks()
     }
 
     fun getLastOpenedBook(): LiveData<Book> {
-        return mLastOpenedBook
+        return mRepository.getLastOpenedBook()
     }
 
     fun insert(book: Book) {

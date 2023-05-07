@@ -21,9 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
@@ -87,33 +85,53 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp(viewModel: MainViewModel, navController: NavController) {
+
+    val scaffoldState = rememberScaffoldState()
+
+    var isBookViewScreen by remember { mutableStateOf(false) }
+
     Scaffold(
-        floatingActionButton = {AddBookButton(viewModel)},
+        scaffoldState = scaffoldState,
+        floatingActionButton = {
+            if (!isBookViewScreen){
+                AddBookButton(viewModel)
+            }},
         floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true,
         bottomBar = {
-            BottomAppBar{
-                IconButton(onClick = { navController.navigate(Routes.SettingsView.route) }) { Icon(Icons.Filled.Settings, contentDescription = "Настройки") }
-                Spacer(Modifier.weight(1f, true))
-                IconButton(onClick = {  }) { Icon(Icons.Filled.Info, contentDescription = "Информация о приложении") }
+            if (!isBookViewScreen){
+                BottomAppBar{
+                    IconButton(onClick = { navController.navigate(Routes.SettingsView.route) }) { Icon(Icons.Filled.Settings, contentDescription = "Настройки") }
+                    Spacer(Modifier.weight(1f, true))
+                    IconButton(onClick = {  }) { Icon(Icons.Filled.Info, contentDescription = "Информация о приложении") }
+                }
             }
         }
     ) { padding ->
-        
-        NavHost(navController = navController as NavHostController, startDestination = Routes.Library.route) {
+            NavHost(
+                navController = navController as NavHostController,
+                startDestination = Routes.Library.route
+            ) {
 
-            composable(Routes.Library.route){
-                LibraryView(viewModel = viewModel, navController = navController, modifier = Modifier.padding(padding))
-            }
+                composable(Routes.Library.route) {
+                    isBookViewScreen = false
+                    LibraryView(
+                        viewModel = viewModel,
+                        navController = navController,
+                        modifier = Modifier.padding(padding)
+                    )
+                }
 
-            composable(Routes.BookView.route){
-                BookView(viewModel = viewModel, modifier = Modifier.padding(padding))
-            }
+                composable(Routes.BookView.route) {
+                    isBookViewScreen = true
+                    BookView(viewModel = viewModel, modifier = Modifier.padding(padding))
+                }
 
-            composable(Routes.SettingsView.route){
-                SettingsView()
+                composable(Routes.SettingsView.route) {
+                    isBookViewScreen = false
+                    SettingsView()
+                }
             }
-        }
     }
 }
 

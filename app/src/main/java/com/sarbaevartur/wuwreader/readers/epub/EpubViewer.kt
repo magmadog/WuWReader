@@ -6,20 +6,25 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.sarbaevartur.wuwreader.MainViewModel
+import com.sarbaevartur.wuwreader.domain.model.Book
 import java.lang.Math.ceil
 import java.lang.Math.min
 
 class EpubViewer {
 
     @Composable
-    fun BookContent(book: String) {
-        val lines = book.lines()
-        val currentPage = remember { mutableStateOf(0) }
+    fun BookContent(book: Book, mainViewModel: MainViewModel) {
+        val text = EpubReader().getEpubText(book.path, LocalContext.current)
+        val lines = text.lines()
+        val currentPage = remember { mutableStateOf(book.lastPage) }
         val linesPerPage = 15
 
         Column(modifier = Modifier.fillMaxSize()) {
@@ -57,6 +62,14 @@ class EpubViewer {
                 ) {
                     Text(text = "Next Page")
                 }
+            }
+        }
+
+        DisposableEffect( currentPage ){
+            onDispose {
+                book.lastPage = currentPage.value
+                book.pages = ceil(lines.size.toDouble() / linesPerPage).toInt()
+                mainViewModel.update(book)
             }
         }
     }

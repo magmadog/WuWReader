@@ -11,6 +11,6 @@ class Book(
     val cover: String = "",
     val lastOpenDate: Date = Date(),
     val format: String = "PDF",
-    val pages: Int = 100,
+    var pages: Int = 100,
     val size: Int = 2048,
 )

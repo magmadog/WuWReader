@@ -19,6 +19,7 @@ class BookRepositoryImpl(application: Application): BookRepository {
         AppDatabase::class.java, "database-name"
     )
         .allowMainThreadQueries()
+        .fallbackToDestructiveMigration()
         .build()
 
     var executor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -74,6 +75,7 @@ class BookRepositoryImpl(application: Application): BookRepository {
     }
 
     private fun bookEntityToBookTransformer(bookEntity: BookEntity): Book {
+        if (bookEntity == null) return Book()
         return Book(
                 id = bookEntity.id,
                 title = bookEntity.title,

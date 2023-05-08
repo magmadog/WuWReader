@@ -32,11 +32,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.sarbaevartur.wuwreader.domain.model.Book
-import com.sarbaevartur.wuwreader.screens.BookView
-import com.sarbaevartur.wuwreader.screens.LibraryView
-import com.sarbaevartur.wuwreader.screens.Routes
-import com.sarbaevartur.wuwreader.screens.SettingsView
+import com.sarbaevartur.wuwreader.screens.*
 import com.sarbaevartur.wuwreader.ui.theme.WuWReaderTheme
+import com.sarbaevartur.wuwreader.voice.VoiceToTextParser
 import java.util.*
 
 const val REQUEST_CODE_PERMISSION_READ_EXTERNAL_STORAGE = 12345
@@ -44,6 +42,7 @@ const val REQUEST_CODE_PERMISSION_WRITE_EXTERNAL_STORAGE = 12346
 
 class MainActivity : ComponentActivity() {
 
+    private val voiceToText by lazy { VoiceToTextParser(application) }
     private val viewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +52,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             WuWReaderTheme {
                 val navController = rememberNavController()
-                MyApp(viewModel = viewModel, navController)
+                MyApp(viewModel = viewModel, navController, voiceToText)
             }
         }
     }
@@ -84,7 +83,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp(viewModel: MainViewModel, navController: NavController) {
+fun MyApp(viewModel: MainViewModel, navController: NavController, voiceToText: VoiceToTextParser) {
 
     val scaffoldState = rememberScaffoldState()
 
@@ -130,6 +129,27 @@ fun MyApp(viewModel: MainViewModel, navController: NavController) {
                 composable(Routes.SettingsView.route) {
                     isBookViewScreen = false
                     SettingsView()
+                }
+
+                composable(Routes.Test.route) {
+                    var canRecord by remember {
+                        mutableStateOf(false)
+                    }
+
+                    val recordAudioLauncher = rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.RequestPermission(),
+                        onResult = { isGranted ->
+                            canRecord = isGranted
+                        }
+                    )
+
+                    LaunchedEffect(key1 = recordAudioLauncher) {
+                        // Launches the permission request
+                        recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
+
+                    }
+                    isBookViewScreen = true
+                    TestWindowWithVoiceAssistant(voiceToText, canRecord)
                 }
             }
     }

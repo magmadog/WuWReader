@@ -39,9 +39,6 @@ fun LibraryView(viewModel: MainViewModel, navController: NavController, modifier
     if (bookList.isNotEmpty()) {
         Column(modifier = modifier) {
             SearchBar()
-            Button(onClick = { navController.navigate(Routes.Test.route)}) {
-
-            }
             if (lastBook != null)
                 LastBookPreview(
                     onClick = { navController.navigate(Routes.BookView.route) },
@@ -129,7 +126,7 @@ fun LastBookPreview(
                 color = OrangeLight
             )
             Text(
-                text = stringResource(id = R.string.read) + " " + book.lastPage
+                text = stringResource(id = R.string.read) + " " + book.lastPage+1
             )
             Button(onClick = onClick) {
                 Text(text = stringResource(id = R.string.open_book))

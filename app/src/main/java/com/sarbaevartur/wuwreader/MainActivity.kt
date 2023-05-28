@@ -8,14 +8,12 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -98,8 +96,6 @@ fun MyApp(viewModel: MainViewModel, navController: NavController, voiceToText: V
 
     var isBookViewScreen by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
-
     Scaffold(
         scaffoldState = scaffoldState,
         floatingActionButton = {
@@ -152,14 +148,8 @@ fun MyApp(viewModel: MainViewModel, navController: NavController, voiceToText: V
                 }
         )
         if (!state.isSpeaking and state.spokenText.isNotEmpty()) {
-            val executeVoiceCommand = ExecuteVoiceCommand().processCommand(state.spokenText.lowercase(), viewModel, navController)
-
-            if (!executeVoiceCommand) {
-                Toast.makeText(
-                    context,
-                    "Неизвестная голосовая команда",
-                    Toast.LENGTH_SHORT).show()
-                }
+            ExecuteVoiceCommand().processCommand(state.spokenText.lowercase(), viewModel, navController, LocalContext.current)
+            state.spokenText = ""
         }
         NavHost(
                 navController = navController as NavHostController,

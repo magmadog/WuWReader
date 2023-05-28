@@ -11,12 +11,11 @@ fun BookView(viewModel: MainViewModel, modifier: Modifier){
     val book by viewModel.getLastOpenedBook().collectAsState(initial = null)
 
     if (book != null) {
-        var page by remember { mutableStateOf(book!!.lastPage) }
 
         when (book?.format) {
             "pdf" -> PdfView(book!!, modifier)
             "epub" -> {
-                EpubViewer().BookContent(book = book!!, viewModel, page, { page++ }, { page-- })
+                EpubViewer(book = book!!, viewModel).BookContent()
             }
         }
     }

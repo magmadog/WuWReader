@@ -2,6 +2,6 @@ package com.sarbaevartur.wuwreader.voice
 
 data class VoiceToTextParserState(
     val isSpeaking: Boolean = false,
-    val spokenText: String = "",
+    var spokenText: String = "",
     val error: String? = null
 )

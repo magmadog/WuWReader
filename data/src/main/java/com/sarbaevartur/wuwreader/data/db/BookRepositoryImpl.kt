@@ -1,7 +1,6 @@
 package com.sarbaevartur.wuwreader.data.db
 
 import android.app.Application
-import android.util.Log
 import androidx.room.Room
 import com.sarbaevartur.wuwreader.data.model.BookEntity
 import com.sarbaevartur.wuwreader.domain.model.Book
@@ -38,8 +37,7 @@ class BookRepositoryImpl(application: Application): BookRepository {
 
     override fun insert(book: Book) {
         executor.execute {
-            val k = mBookDao.insertAll(bookToBookEntityTransformer(book))
-            Log.d("DB_add", "$k")
+            mBookDao.insertAll(bookToBookEntityTransformer(book))
         }
     }
 
@@ -56,7 +54,8 @@ class BookRepositoryImpl(application: Application): BookRepository {
     }
 
     override fun update(book: Book){
-        executor.execute {mBookDao.update(bookToBookEntityTransformer(book))}
+        executor.execute {
+            mBookDao.update(bookToBookEntityTransformer(book))}
     }
 
     private fun bookToBookEntityTransformer(book: Book): BookEntity{

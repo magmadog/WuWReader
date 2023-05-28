@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -35,26 +34,30 @@ fun LibraryView(viewModel: MainViewModel, navController: NavController, modifier
 
     val lastBook by viewModel.getLastOpenedBook().collectAsState(initial = null)
     val bookList by viewModel.getAllBooks().collectAsState(initial = emptyList())
+    val searchRequestText = remember { mutableStateOf("") }
 
     if (bookList.isNotEmpty()) {
         Column(modifier = modifier) {
-            SearchBar()
-            if (lastBook != null)
+            SearchBar(state = searchRequestText)
+            if (lastBook != null && searchRequestText.value == "")
                 LastBookPreview(
                     onClick = { navController.navigate(Routes.BookView.route) },
                     lastBook!!
                 )
             Library(viewModel, modifier, navController, bookList)
+            if (searchRequestText.value != ""){
+                val books = searchBooksInOPDS("Book")
+                SearchResults(books = books)
+            }
         }
     }
 }
 
 @Composable
-@Preview
 fun SearchBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    state: MutableState<String>
 ) {
-    val state = remember { mutableStateOf("") }
     TextField(
         value = state.value,
         onValueChange = { value ->
@@ -268,4 +271,58 @@ fun BookCard(
             }
         }
     }
+}
+
+@Composable
+fun SearchResults(books: List<Book>){
+    if (books.isNotEmpty()) {
+        LazyColumn() {
+            itemsIndexed(
+                items = books
+            ) { _, item ->
+                Box(modifier = Modifier.height(64.dp)){
+                    Column {
+                        Row {
+                            Image(
+                                painter = painterResource(id = R.drawable.book_preview),
+                                contentDescription = stringResource(id = R.string.book_preview_content_description)
+                            )
+                            Column(
+                            ) {
+                                Text(
+                                    text = item.title,
+                                    style = MaterialTheme.typography.h5,
+                                    maxLines = 2
+                                )
+                                Text(
+                                    text = item.author
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun searchBooksInOPDS(query: String): List<Book> {
+    // Здесь вы можете выполнить запрос к OPDS API и получить список книг,
+    // соответствующих запросу пользователя
+    // В этом примере я просто возвращаю фиктивные данные
+
+    val allBooks = listOf(
+        Book(title = "Book 1", author = "Author 1"),
+        Book(title = "Book 2", author = "Author 2"),
+        Book(title = "Book 3", author = "Author 3"),
+        Book(title = "Book 4", author = "Author 4"),
+        Book(title = "Book 5", author = "Author 5")
+    )
+
+    // Фильтруем список книг по запросу пользователя
+    val filteredBooks = allBooks.filter { book ->
+        book.title.contains(query, ignoreCase = true) || book.author.contains(query, ignoreCase = true)
+    }
+
+    return filteredBooks
 }

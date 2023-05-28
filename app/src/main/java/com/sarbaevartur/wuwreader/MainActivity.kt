@@ -14,7 +14,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -23,6 +27,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -31,12 +36,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.sarbaevartur.wuwreader.app.ExecuteVoiceCommand
 import com.sarbaevartur.wuwreader.domain.model.Book
-import com.sarbaevartur.wuwreader.screens.BookView
-import com.sarbaevartur.wuwreader.screens.LibraryView
-import com.sarbaevartur.wuwreader.screens.Routes
-import com.sarbaevartur.wuwreader.screens.SettingsView
+import com.sarbaevartur.wuwreader.screens.*
 import com.sarbaevartur.wuwreader.ui.theme.WuWReaderTheme
+import com.sarbaevartur.wuwreader.voice.VoiceToTextParser
 import java.util.*
 
 const val REQUEST_CODE_PERMISSION_READ_EXTERNAL_STORAGE = 12345
@@ -44,6 +48,7 @@ const val REQUEST_CODE_PERMISSION_WRITE_EXTERNAL_STORAGE = 12346
 
 class MainActivity : ComponentActivity() {
 
+    private val voiceToText by lazy { VoiceToTextParser(application) }
     private val viewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +58,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             WuWReaderTheme {
                 val navController = rememberNavController()
-                MyApp(viewModel = viewModel, navController)
+                MyApp(viewModel = viewModel, navController, voiceToText)
             }
         }
     }
@@ -83,8 +88,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MyApp(viewModel: MainViewModel, navController: NavController) {
+fun MyApp(viewModel: MainViewModel, navController: NavController, voiceToText: VoiceToTextParser) {
 
     val scaffoldState = rememberScaffoldState()
 
@@ -93,9 +99,7 @@ fun MyApp(viewModel: MainViewModel, navController: NavController) {
     Scaffold(
         scaffoldState = scaffoldState,
         floatingActionButton = {
-            if (!isBookViewScreen){
-                AddBookButton(viewModel)
-            }},
+            if (!isBookViewScreen){ AddBookButton(viewModel) }},
         floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true,
         bottomBar = {
@@ -108,7 +112,46 @@ fun MyApp(viewModel: MainViewModel, navController: NavController) {
             }
         }
     ) { padding ->
-            NavHost(
+
+        val state by voiceToText.state.collectAsState( )
+
+        var canRecord by remember {
+            mutableStateOf(false)
+        }
+
+        val recordAudioLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            onResult = { isGranted ->
+                canRecord = isGranted
+            }
+        )
+
+        LaunchedEffect(key1 = recordAudioLauncher) {
+            recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            if (canRecord) {
+                                if (!state.isSpeaking) {
+                                    voiceToText.startListening()
+                                } else {
+                                    voiceToText.stopListening()
+                                }
+                            }
+                        }
+                    )
+                }
+        )
+        if (!state.isSpeaking and state.spokenText.isNotEmpty()) {
+            ExecuteVoiceCommand().processCommand(state.spokenText.lowercase(), viewModel, navController, LocalContext.current)
+            state.spokenText = ""
+        }
+        NavHost(
                 navController = navController as NavHostController,
                 startDestination = Routes.Library.route
             ) {

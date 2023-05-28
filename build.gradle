@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        compose_version = '1.3.2'
+        compose_version = '1.4.3'
         room_version = "2.5.1"
         dagger_version = "2.43.1"
         readium_version = '2.2.0'

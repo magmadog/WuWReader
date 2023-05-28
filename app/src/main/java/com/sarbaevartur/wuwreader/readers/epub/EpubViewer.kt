@@ -5,10 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -18,18 +15,21 @@ import com.sarbaevartur.wuwreader.domain.model.Book
 import java.lang.Math.ceil
 import java.lang.Math.min
 
-class EpubViewer {
+class EpubViewer(val book: Book, private val viewModel: MainViewModel) {
 
     @Composable
-    fun BookContent(book: Book, mainViewModel: MainViewModel) {
+    fun BookContent() {
         val text = EpubReader().getEpubText(book.path, LocalContext.current)
         val lines = text.lines()
-        val currentPage = remember { mutableStateOf(book.lastPage) }
         val linesPerPage = 15
+        val currentPage = book.lastPage
+
+        val stateTTS = viewModel.stateTTS.value
+        val context = LocalContext.current
 
         Column(modifier = Modifier.fillMaxSize()) {
             Text(
-                text = "Page ${currentPage.value + 1} of ${ceil(lines.size.toDouble() / linesPerPage).toInt()}",
+                text = "Page ${currentPage + 1} of ${ceil(lines.size.toDouble() / linesPerPage).toInt()}",
                 modifier = Modifier.padding(16.dp)
             )
 
@@ -37,7 +37,9 @@ class EpubViewer {
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                itemsIndexed(lines.subList(currentPage.value * linesPerPage, min((currentPage.value + 1) * linesPerPage, lines.size))) { _, line ->
+                val listOfLines = lines.subList(currentPage * linesPerPage, min((currentPage + 1) * linesPerPage, lines.size))
+                viewModel.onTextFieldValueChange(listOfLines)
+                itemsIndexed(listOfLines) { _, line ->
                     Text(text = line, textAlign = TextAlign.Justify)
                 }
             }
@@ -49,28 +51,34 @@ class EpubViewer {
                     .padding(bottom = 40.dp)
             ) {
                 Button(
-                    onClick = { currentPage.value-- },
-                    enabled = currentPage.value > 0,
+                    onClick = { viewModel.prevPage() },
+                    enabled = currentPage > 0,
                     modifier = Modifier.padding(8.dp)
                 ) {
-                    Text(text = "Previous Page")
+                    Text(text = "Previous\nPage")
+                }
+                Button(onClick = {
+                    viewModel.textToSpeech(context)
+                }, enabled = stateTTS.isButtonEnabled
+                ) {
+                    Text(text = "speak")
+                }
+                Button(onClick = {
+                    viewModel.stopTTS()
+                }
+                ) {
+                    Text(text = "stop")
                 }
                 Button(
-                    onClick = { currentPage.value++ },
-                    enabled = currentPage.value < ceil(lines.size.toDouble() / linesPerPage).toInt() - 1,
+                    onClick = { viewModel.nextPage() },
+                    enabled = currentPage < ceil(lines.size.toDouble() / linesPerPage).toInt() - 1,
                     modifier = Modifier.padding(8.dp)
                 ) {
-                    Text(text = "Next Page")
+                    Text(text = "Next\nPage")
                 }
             }
         }
 
-        DisposableEffect( currentPage ){
-            onDispose {
-                book.lastPage = currentPage.value
-                book.pages = ceil(lines.size.toDouble() / linesPerPage).toInt()
-                mainViewModel.update(book)
-            }
-        }
+        book.pages = ceil(lines.size.toDouble() / linesPerPage).toInt()
     }
 }

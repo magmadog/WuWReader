@@ -1,8 +1,6 @@
 package com.sarbaevartur.wuwreader.screens
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.sarbaevartur.wuwreader.MainViewModel
 import com.sarbaevartur.wuwreader.readers.epub.EpubViewer
@@ -12,10 +10,13 @@ import com.sarbaevartur.wuwreader.readers.pdf.PdfView
 fun BookView(viewModel: MainViewModel, modifier: Modifier){
     val book by viewModel.getLastOpenedBook().collectAsState(initial = null)
 
-    when(book?.format){
-        "pdf" -> PdfView(book!!, modifier)
-        "epub" -> {
-            EpubViewer().BookContent(book = book!!, viewModel)
+    if (book != null) {
+
+        when (book?.format) {
+            "pdf" -> PdfView(book!!, modifier)
+            "epub" -> {
+                EpubViewer(book = book!!, viewModel).BookContent()
+            }
         }
     }
 }

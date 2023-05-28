@@ -1,6 +1,5 @@
 package com.sarbaevartur.wuwreader.screens
 
-import android.util.Log
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -36,9 +35,6 @@ fun LibraryView(viewModel: MainViewModel, navController: NavController, modifier
 
     val lastBook by viewModel.getLastOpenedBook().collectAsState(initial = null)
     val bookList by viewModel.getAllBooks().collectAsState(initial = emptyList())
-
-    Log.d("LibraryView", "Books: $bookList")
-    Log.d("LibraryView", "Last book: $lastBook")
 
     if (bookList.isNotEmpty()) {
         Column(modifier = modifier) {
@@ -130,7 +126,7 @@ fun LastBookPreview(
                 color = OrangeLight
             )
             Text(
-                text = stringResource(id = R.string.read) + " " + book.lastPage
+                text = stringResource(id = R.string.read) + " " + book.lastPage+1
             )
             Button(onClick = onClick) {
                 Text(text = stringResource(id = R.string.open_book))
